@@ -1,0 +1,202 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:s="http://jboss.com/products/seam/taglib"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    template="layout/template.xhtml">
+
+<ui:define name="body">
+
+    <h:form id="usuario" styleClass="edit">
+
+        <rich:panel>
+            <f:facet name="header">#{usuarioHome.managed ? 'Edit' : 'Add'} Usuario</f:facet>
+
+
+
+
+            <s:decorate id="nomeField" template="layout/edit.xhtml">
+                <ui:define name="label">Nome</ui:define>
+                <h:inputText id="nome"
+                       required="true"
+                           size="100"
+                      maxlength="150"
+                          value="#{usuarioHome.instance.nome}">
+                    <a:support event="onblur" reRender="nomeField" bypassUpdates="true" ajaxSingle="true"/>
+                </h:inputText>
+            </s:decorate>
+
+
+            <s:decorate id="loginField" template="layout/edit.xhtml">
+                <ui:define name="label">Login</ui:define>
+                <h:inputText id="login"
+                       required="true"
+                           size="45"
+                      maxlength="45"
+                          value="#{usuarioHome.instance.login}">
+                    <a:support event="onblur" reRender="loginField" bypassUpdates="true" ajaxSingle="true"/>
+                </h:inputText>
+            </s:decorate>
+
+
+            <s:decorate id="senhaField" template="layout/edit.xhtml">
+                <ui:define name="label">Senha</ui:define>
+                <h:inputText id="senha"
+                       required="true"
+                           size="32"
+                      maxlength="32"
+                          value="#{usuarioHome.instance.senha}">
+                    <a:support event="onblur" reRender="senhaField" bypassUpdates="true" ajaxSingle="true"/>
+                </h:inputText>
+            </s:decorate>
+
+
+            <s:decorate id="emailField" template="layout/edit.xhtml">
+                <ui:define name="label">Email</ui:define>
+                <h:inputTextarea id="email"
+                               cols="80"
+                               rows="3"
+                           required="true"
+                              value="#{usuarioHome.instance.email}"/>
+            </s:decorate>
+
+
+
+            <div style="clear:both">
+                <span class="required">*</span>
+                required fields
+            </div>
+
+        </rich:panel>
+
+        <div class="actionButtons">
+
+            <h:commandButton id="save"
+                          value="Save"
+                         action="#{usuarioHome.persist}"
+                       disabled="#{!usuarioHome.wired}"
+                       rendered="#{!usuarioHome.managed}"/>
+
+            <h:commandButton id="update"
+                          value="Save"
+                         action="#{usuarioHome.update}"
+                       rendered="#{usuarioHome.managed}"/>
+
+            <h:commandButton id="delete"
+                          value="Delete"
+                         action="#{usuarioHome.remove}"
+                      immediate="true"
+                       rendered="#{usuarioHome.managed}"/>
+
+            <s:button id="cancelEdit"
+                   value="Cancel"
+             propagation="end"
+                    view="/Usuario.xhtml"
+                rendered="#{usuarioHome.managed}"/>
+
+            <s:button id="cancelAdd"
+                   value="Cancel"
+             propagation="end"
+                    view="/#{empty usuarioFrom ? 'UsuarioList' : usuarioFrom}.xhtml"
+                rendered="#{!usuarioHome.managed}"/>
+
+        </div>
+    </h:form>
+
+<rich:tabPanel switchType="ajax">
+
+    <rich:tab label="Equipe *" labelClass="required">
+    <div class="association" id="equipeParent">
+
+        <h:outputText value="There is no equipe associated with this usuario."
+                   rendered="#{usuarioHome.instance.equipe == null}"/>
+
+        <rich:dataTable var="_equipe"
+                   value="#{usuarioHome.instance.equipe}"
+                rendered="#{usuarioHome.instance.equipe != null}"
+              rowClasses="rvgRowOne,rvgRowTwo"
+                      id="equipeTable">
+            <h:column>
+                <f:facet name="header">Id equipe</f:facet>
+                <h:outputText value="#{_equipe.idEquipe}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Nome</f:facet>
+                <h:outputText value="#{_equipe.nome}"/>
+            </h:column>
+        </rich:dataTable>
+
+        <div class="actionButtons">
+            <s:button id="#{usuarioHome.instance.equipe != null ? 'changeParent' : 'selectParent'}" value="#{usuarioHome.instance.equipe != null ? 'Change' : 'Select'} equipe"
+                       view="/EquipeList.xhtml">
+                <f:param name="from" value="UsuarioEdit"/>
+            </s:button>
+        </div>
+
+    </div>
+    </rich:tab>
+
+    <rich:tab label="Tarefas">
+        <h:form styleClass="association" id="tarefasChildren">
+
+            <h:outputText value="There are no tarefas associated with this usuario."
+                       rendered="#{empty usuarioHome.tarefas}"/>
+
+            <rich:dataTable value="#{usuarioHome.tarefas}"
+                           var="_tarefa"
+                      rendered="#{not empty usuarioHome.tarefas}"
+                    rowClasses="rvgRowOne,rvgRowTwo"
+                            id="tarefasTable">
+                <rich:column sortBy="#{_tarefa.idTarefa}">
+                    <f:facet name="header">Id tarefa</f:facet>
+                    <h:outputText value="#{_tarefa.idTarefa}"/>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.texto}">
+                    <f:facet name="header">Texto</f:facet>
+                    <h:outputText value="#{_tarefa.texto}"/>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.ponto}">
+                    <f:facet name="header">Ponto</f:facet>
+                    <h:outputText value="#{_tarefa.ponto}">
+                        <f:convertNumber/>
+                    </h:outputText>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.inicio}">
+                    <f:facet name="header">Inicio</f:facet>
+                    <h:outputText value="#{_tarefa.inicio}">
+                        <s:convertDateTime type="both" dateStyle="short"/>
+                    </h:outputText>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.fim}">
+                    <f:facet name="header">Fim</f:facet>
+                    <h:outputText value="#{_tarefa.fim}">
+                        <s:convertDateTime type="both" dateStyle="short"/>
+                    </h:outputText>
+                </rich:column>
+            </rich:dataTable>
+
+        </h:form>
+
+        <f:subview rendered="#{usuarioHome.managed}" id="tarefas">
+        <div class="actionButtons">
+            <s:button id="addtarefa"
+                   value="Add tarefa"
+                    view="/TarefaEdit.xhtml"
+             propagation="none">
+                 <f:param name="usuarioIdUsuario"
+                         value="#{usuarioHome.instance.idUsuario}"/>
+                 <f:param name="tarefaFrom" value="Usuario"/>
+            </s:button>
+        </div>
+        </f:subview>
+    </rich:tab>
+
+   
+</rich:tabPanel>
+</ui:define>
+
+</ui:composition>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<page xmlns="http://jboss.com/products/seam/pages"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://jboss.com/products/seam/pages http://jboss.com/products/seam/pages-2.2.xsd"
+      no-conversation-view-id="/TarefaList.xhtml"
+      login-required="true">
+
+   <begin-conversation join="true" flush-mode="MANUAL"/>
+
+   <action execute="#{tarefaHome.wire}"/>
+
+   <param name="tarefaFrom"/>
+   <param name="tarefaIdTarefa" value="#{tarefaHome.tarefaIdTarefa}"/>
+   <param name="usuarioFrom"/>
+   <param name="usuarioIdUsuario" value="#{usuarioHome.usuarioIdUsuario}"/>
+   <param name="equipeFrom"/>
+   <param name="equipeIdEquipe" value="#{equipeHome.equipeIdEquipe}"/>
+
+
+   <param name="sprintFrom"/>
+   <param name="sprintIdSprint" value="#{sprintHome.sprintIdSprint}"/>
+
+   <param name="projetoFrom"/>
+   <param name="projetoIdProjeto" value="#{projetoHome.projetoIdProjeto}"/>
+
+
+
+   <navigation from-action="#{tarefaHome.persist}">
+      <rule if-outcome="persisted">
+         <end-conversation/>
+         <redirect view-id="/Tarefa.xhtml"/>
+      </rule>
+   </navigation>
+
+   <navigation from-action="#{tarefaHome.update}">
+      <rule if-outcome="updated">
+         <end-conversation/>
+         <redirect view-id="/Tarefa.xhtml"/>
+      </rule>
+   </navigation>
+
+   <navigation from-action="#{tarefaHome.remove}">
+      <rule if-outcome="removed">
+         <end-conversation/>
+         <redirect view-id="/TarefaList.xhtml"/>
+      </rule>
+   </navigation>
+
+</page>

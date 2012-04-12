@@ -1,0 +1,217 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:s="http://jboss.com/products/seam/taglib"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    template="layout/template.xhtml">
+
+<ui:define name="body">
+
+    <rich:panel>
+        <f:facet name="header">Tarefa Details</f:facet>
+
+
+        <s:decorate id="texto" template="layout/display.xhtml">
+            <ui:define name="label">Texto</ui:define>
+            <h:outputText value="#{tarefaHome.instance.texto}"/>
+        </s:decorate>
+
+        <s:decorate id="ponto" template="layout/display.xhtml">
+            <ui:define name="label">Ponto</ui:define>
+            <h:outputText value="#{tarefaHome.instance.ponto}">
+                <f:convertNumber/>
+            </h:outputText>
+        </s:decorate>
+
+        <s:decorate id="inicio" template="layout/display.xhtml">
+            <ui:define name="label">Inicio</ui:define>
+            <h:outputText value="#{tarefaHome.instance.inicio}">
+                <s:convertDateTime type="both" dateStyle="short"/>
+            </h:outputText>
+        </s:decorate>
+
+        <s:decorate id="fim" template="layout/display.xhtml">
+            <ui:define name="label">Fim</ui:define>
+            <h:outputText value="#{tarefaHome.instance.fim}">
+                <s:convertDateTime type="both" dateStyle="short"/>
+            </h:outputText>
+        </s:decorate>
+
+        <div style="clear:both"/>
+
+    </rich:panel>
+
+    <div class="actionButtons">
+
+        <s:button view="/TarefaEdit.xhtml"
+                    id="edit"
+                 value="Edit"/>
+
+        <s:button view="/#{empty tarefaFrom ? 'TarefaList' : tarefaFrom}.xhtml"
+                    id="done"
+                 value="Done"/>
+
+    </div>
+
+    <rich:tabPanel switchType="ajax">
+
+    <rich:tab>
+        <f:facet name="label">
+            <h:panelGroup><h:graphicImage value="/img/manytoone.gif" style="vertical-align: middle; padding-right: 4px;"/>Usuario</h:panelGroup>
+        </f:facet>
+    <div class="association" id="usuarioParent">
+
+        <h:outputText value="There is no usuario associated with this tarefa."
+                   rendered="#{tarefaHome.instance.usuario == null}"/>
+
+        <rich:dataTable var="_usuario"
+                   value="#{tarefaHome.instance.usuario}"
+                rendered="#{tarefaHome.instance.usuario != null}"
+              rowClasses="rvgRowOne,rvgRowTwo"
+                      id="usuarioTable">
+            <h:column>
+                <f:facet name="header">Id usuario</f:facet>
+                <h:outputText value="#{_usuario.idUsuario}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Equipe id equipe</f:facet>
+                <h:outputText value="#{_usuario.equipe.idEquipe}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Nome</f:facet>
+                <h:outputText value="#{_usuario.nome}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Login</f:facet>
+                <h:outputText value="#{_usuario.login}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Senha</f:facet>
+                <h:outputText value="#{_usuario.senha}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Email</f:facet>
+                <h:outputText value="#{_usuario.email}"/>
+            </h:column>
+            <h:column styleClass="action">
+                <f:facet name="header">Action</f:facet>
+                <s:link id="viewusuario"
+                     value="View"
+                      view="/Usuario.xhtml">
+                    <f:param name="usuarioIdUsuario"
+                           value="#{_usuario.idUsuario}"/>
+                </s:link>
+            </h:column>
+        </rich:dataTable>
+
+    </div>
+    </rich:tab>
+
+    <rich:tab>
+        <f:facet name="label">
+            <h:panelGroup><h:graphicImage value="/img/manytoone.gif" style="vertical-align: middle; padding-right: 4px;"/>Sprint</h:panelGroup>
+        </f:facet>
+    <div class="association" id="sprintParent">
+
+        <h:outputText value="There is no sprint associated with this tarefa."
+                   rendered="#{tarefaHome.instance.sprint == null}"/>
+
+        <rich:dataTable var="_sprint"
+                   value="#{tarefaHome.instance.sprint}"
+                rendered="#{tarefaHome.instance.sprint != null}"
+              rowClasses="rvgRowOne,rvgRowTwo"
+                      id="sprintTable">
+            <h:column>
+                <f:facet name="header">Id sprint</f:facet>
+                <h:outputText value="#{_sprint.idSprint}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Equipe id equipe</f:facet>
+                <h:outputText value="#{_sprint.equipe.idEquipe}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Nome</f:facet>
+                <h:outputText value="#{_sprint.nome}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Data inicio</f:facet>
+                <h:outputText value="#{_sprint.dataInicio}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Data fim</f:facet>
+                <h:outputText value="#{_sprint.dataFim}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </h:column>
+            <h:column styleClass="action">
+                <f:facet name="header">Action</f:facet>
+                <s:link id="viewsprint"
+                     value="View"
+                      view="/Sprint.xhtml">
+                    <f:param name="sprintIdSprint"
+                           value="#{_sprint.idSprint}"/>
+                </s:link>
+            </h:column>
+        </rich:dataTable>
+
+    </div>
+    </rich:tab>
+
+    <rich:tab>
+        <f:facet name="label">
+            <h:panelGroup><h:graphicImage value="/img/manytoone.gif" style="vertical-align: middle; padding-right: 4px;"/>Projeto</h:panelGroup>
+        </f:facet>
+    <div class="association" id="projetoParent">
+
+        <h:outputText value="There is no projeto associated with this tarefa."
+                   rendered="#{tarefaHome.instance.projeto == null}"/>
+
+        <rich:dataTable var="_projeto"
+                   value="#{tarefaHome.instance.projeto}"
+                rendered="#{tarefaHome.instance.projeto != null}"
+              rowClasses="rvgRowOne,rvgRowTwo"
+                      id="projetoTable">
+            <h:column>
+                <f:facet name="header">Id projeto</f:facet>
+                <h:outputText value="#{_projeto.idProjeto}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Equipe id equipe</f:facet>
+                <h:outputText value="#{_projeto.equipe.idEquipe}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Nome</f:facet>
+                <h:outputText value="#{_projeto.nome}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Descricao</f:facet>
+                <h:outputText value="#{_projeto.descricao}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Data criacao</f:facet>
+                <h:outputText value="#{_projeto.dataCriacao}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </h:column>
+            <h:column styleClass="action">
+                <f:facet name="header">Action</f:facet>
+                <s:link id="viewprojeto"
+                     value="View"
+                      view="/Projeto.xhtml">
+                    <f:param name="projetoIdProjeto"
+                           value="#{_projeto.idProjeto}"/>
+                </s:link>
+            </h:column>
+        </rich:dataTable>
+
+    </div>
+    </rich:tab>
+</rich:tabPanel>
+</ui:define>
+
+</ui:composition>

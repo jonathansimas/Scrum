@@ -1,0 +1,159 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:s="http://jboss.com/products/seam/taglib"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    template="layout/template.xhtml">
+
+<ui:define name="body">
+
+    <rich:panel>
+        <f:facet name="header">Sprint Details</f:facet>
+
+
+        <s:decorate id="nome" template="layout/display.xhtml">
+            <ui:define name="label">Nome</ui:define>
+            <h:outputText value="#{sprintHome.instance.nome}"/>
+        </s:decorate>
+
+        <s:decorate id="dataInicio" template="layout/display.xhtml">
+            <ui:define name="label">Data inicio</ui:define>
+            <h:outputText value="#{sprintHome.instance.dataInicio}">
+                <s:convertDateTime type="both" dateStyle="short"/>
+            </h:outputText>
+        </s:decorate>
+
+        <s:decorate id="dataFim" template="layout/display.xhtml">
+            <ui:define name="label">Data fim</ui:define>
+            <h:outputText value="#{sprintHome.instance.dataFim}">
+                <s:convertDateTime type="both" dateStyle="short"/>
+            </h:outputText>
+        </s:decorate>
+
+        <div style="clear:both"/>
+
+    </rich:panel>
+
+    <div class="actionButtons">
+
+        <s:button view="/SprintEdit.xhtml"
+                    id="edit"
+                 value="Edit"/>
+
+        <s:button view="/#{empty sprintFrom ? 'SprintList' : sprintFrom}.xhtml"
+                    id="done"
+                 value="Done"/>
+
+    </div>
+
+    <rich:tabPanel switchType="ajax">
+
+    <rich:tab>
+        <f:facet name="label">
+            <h:panelGroup><h:graphicImage value="/img/manytoone.gif" style="vertical-align: middle; padding-right: 4px;"/>Equipe</h:panelGroup>
+        </f:facet>
+    <div class="association" id="equipeParent">
+
+        <h:outputText value="There is no equipe associated with this sprint."
+                   rendered="#{sprintHome.instance.equipe == null}"/>
+
+        <rich:dataTable var="_equipe"
+                   value="#{sprintHome.instance.equipe}"
+                rendered="#{sprintHome.instance.equipe != null}"
+              rowClasses="rvgRowOne,rvgRowTwo"
+                      id="equipeTable">
+            <h:column>
+                <f:facet name="header">Id equipe</f:facet>
+                <h:outputText value="#{_equipe.idEquipe}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Nome</f:facet>
+                <h:outputText value="#{_equipe.nome}"/>
+            </h:column>
+            <h:column styleClass="action">
+                <f:facet name="header">Action</f:facet>
+                <s:link id="viewequipe"
+                     value="View"
+                      view="/Equipe.xhtml">
+                    <f:param name="equipeIdEquipe"
+                           value="#{_equipe.idEquipe}"/>
+                </s:link>
+            </h:column>
+        </rich:dataTable>
+
+    </div>
+    </rich:tab>
+
+    <rich:tab>
+        <f:facet name="label">
+            <h:panelGroup><h:graphicImage value="/img/onetomany.gif" style="vertical-align: middle; padding-right: 4px;"/>Tarefas</h:panelGroup>
+        </f:facet>
+    <h:form styleClass="association" id="tarefasChildren">
+
+        <h:outputText value="There are no tarefas associated with this sprint."
+                   rendered="#{empty sprintHome.tarefas}"/>
+
+        <rich:dataTable value="#{sprintHome.tarefas}"
+                       var="_tarefa"
+                  rendered="#{not empty sprintHome.tarefas}"
+                rowClasses="rvgRowOne,rvgRowTwo"
+                        id="tarefasTable">
+            <rich:column sortBy="#{_tarefa.idTarefa}">
+                <f:facet name="header">Id tarefa</f:facet>
+                <h:outputText value="#{_tarefa.idTarefa}"/>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.texto}">
+                <f:facet name="header">Texto</f:facet>
+                <h:outputText value="#{_tarefa.texto}"/>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.ponto}">
+                <f:facet name="header">Ponto</f:facet>
+                <h:outputText value="#{_tarefa.ponto}">
+                    <f:convertNumber/>
+                </h:outputText>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.inicio}">
+                <f:facet name="header">Inicio</f:facet>
+                <h:outputText value="#{_tarefa.inicio}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.fim}">
+                <f:facet name="header">Fim</f:facet>
+                <h:outputText value="#{_tarefa.fim}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </rich:column>
+            <h:column>
+                <f:facet name="header">Action</f:facet>
+                <s:link id="selecttarefa"
+                     value="Select"
+                      view="/Tarefa.xhtml">
+                    <f:param name="tarefaIdTarefa"
+                            value="#{_tarefa.idTarefa}"/>
+                    <f:param name="tarefaFrom" value="Sprint"/>
+                </s:link>
+            </h:column>
+        </rich:dataTable>
+
+    </h:form>
+
+    <div class="actionButtons">
+        <s:button
+               value="Add tarefa"
+                view="/TarefaEdit.xhtml">
+            <f:param name="sprintIdSprint"
+                    value="#{sprintHome.instance.idSprint}"/>
+            <f:param name="tarefaFrom" value="Sprint"/>
+        </s:button>
+    </div>
+    </rich:tab>
+
+   
+</rich:tabPanel>
+</ui:define>
+
+</ui:composition>

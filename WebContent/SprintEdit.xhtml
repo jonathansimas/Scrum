@@ -1,0 +1,184 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:s="http://jboss.com/products/seam/taglib"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    template="layout/template.xhtml">
+
+<ui:define name="body">
+
+    <h:form id="sprint" styleClass="edit">
+
+        <rich:panel>
+            <f:facet name="header">#{sprintHome.managed ? 'Edit' : 'Add'} Sprint</f:facet>
+
+
+
+
+            <s:decorate id="nomeField" template="layout/edit.xhtml">
+                <ui:define name="label">Nome</ui:define>
+                <h:inputText id="nome"
+                       required="true"
+                           size="45"
+                      maxlength="45"
+                          value="#{sprintHome.instance.nome}">
+                    <a:support event="onblur" reRender="nomeField" bypassUpdates="true" ajaxSingle="true"/>
+                </h:inputText>
+            </s:decorate>
+
+
+            <s:decorate id="dataInicioField" template="layout/edit.xhtml">
+                <ui:define name="label">Data inicio</ui:define>
+                <rich:calendar id="dataInicio"
+                       required="true"
+                          value="#{sprintHome.instance.dataInicio}" datePattern="MM/dd/yyyy hh:mm a"/>
+            </s:decorate>
+
+
+            <s:decorate id="dataFimField" template="layout/edit.xhtml">
+                <ui:define name="label">Data fim</ui:define>
+                <rich:calendar id="dataFim"
+                       required="true"
+                          value="#{sprintHome.instance.dataFim}" datePattern="MM/dd/yyyy hh:mm a"/>
+            </s:decorate>
+
+
+
+            <div style="clear:both">
+                <span class="required">*</span>
+                required fields
+            </div>
+
+        </rich:panel>
+
+        <div class="actionButtons">
+
+            <h:commandButton id="save"
+                          value="Save"
+                         action="#{sprintHome.persist}"
+                       disabled="#{!sprintHome.wired}"
+                       rendered="#{!sprintHome.managed}"/>
+
+            <h:commandButton id="update"
+                          value="Save"
+                         action="#{sprintHome.update}"
+                       rendered="#{sprintHome.managed}"/>
+
+            <h:commandButton id="delete"
+                          value="Delete"
+                         action="#{sprintHome.remove}"
+                      immediate="true"
+                       rendered="#{sprintHome.managed}"/>
+
+            <s:button id="cancelEdit"
+                   value="Cancel"
+             propagation="end"
+                    view="/Sprint.xhtml"
+                rendered="#{sprintHome.managed}"/>
+
+            <s:button id="cancelAdd"
+                   value="Cancel"
+             propagation="end"
+                    view="/#{empty sprintFrom ? 'SprintList' : sprintFrom}.xhtml"
+                rendered="#{!sprintHome.managed}"/>
+
+        </div>
+    </h:form>
+
+<rich:tabPanel switchType="ajax">
+
+    <rich:tab label="Equipe *" labelClass="required">
+    <div class="association" id="equipeParent">
+
+        <h:outputText value="There is no equipe associated with this sprint."
+                   rendered="#{sprintHome.instance.equipe == null}"/>
+
+        <rich:dataTable var="_equipe"
+                   value="#{sprintHome.instance.equipe}"
+                rendered="#{sprintHome.instance.equipe != null}"
+              rowClasses="rvgRowOne,rvgRowTwo"
+                      id="equipeTable">
+            <h:column>
+                <f:facet name="header">Id equipe</f:facet>
+                <h:outputText value="#{_equipe.idEquipe}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Nome</f:facet>
+                <h:outputText value="#{_equipe.nome}"/>
+            </h:column>
+        </rich:dataTable>
+
+        <div class="actionButtons">
+            <s:button id="#{sprintHome.instance.equipe != null ? 'changeParent' : 'selectParent'}" value="#{sprintHome.instance.equipe != null ? 'Change' : 'Select'} equipe"
+                       view="/EquipeList.xhtml">
+                <f:param name="from" value="SprintEdit"/>
+            </s:button>
+        </div>
+
+    </div>
+    </rich:tab>
+
+    <rich:tab label="Tarefas">
+        <h:form styleClass="association" id="tarefasChildren">
+
+            <h:outputText value="There are no tarefas associated with this sprint."
+                       rendered="#{empty sprintHome.tarefas}"/>
+
+            <rich:dataTable value="#{sprintHome.tarefas}"
+                           var="_tarefa"
+                      rendered="#{not empty sprintHome.tarefas}"
+                    rowClasses="rvgRowOne,rvgRowTwo"
+                            id="tarefasTable">
+                <rich:column sortBy="#{_tarefa.idTarefa}">
+                    <f:facet name="header">Id tarefa</f:facet>
+                    <h:outputText value="#{_tarefa.idTarefa}"/>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.texto}">
+                    <f:facet name="header">Texto</f:facet>
+                    <h:outputText value="#{_tarefa.texto}"/>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.ponto}">
+                    <f:facet name="header">Ponto</f:facet>
+                    <h:outputText value="#{_tarefa.ponto}">
+                        <f:convertNumber/>
+                    </h:outputText>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.inicio}">
+                    <f:facet name="header">Inicio</f:facet>
+                    <h:outputText value="#{_tarefa.inicio}">
+                        <s:convertDateTime type="both" dateStyle="short"/>
+                    </h:outputText>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.fim}">
+                    <f:facet name="header">Fim</f:facet>
+                    <h:outputText value="#{_tarefa.fim}">
+                        <s:convertDateTime type="both" dateStyle="short"/>
+                    </h:outputText>
+                </rich:column>
+            </rich:dataTable>
+
+        </h:form>
+
+        <f:subview rendered="#{sprintHome.managed}" id="tarefas">
+        <div class="actionButtons">
+            <s:button id="addtarefa"
+                   value="Add tarefa"
+                    view="/TarefaEdit.xhtml"
+             propagation="none">
+                 <f:param name="sprintIdSprint"
+                         value="#{sprintHome.instance.idSprint}"/>
+                 <f:param name="tarefaFrom" value="Sprint"/>
+            </s:button>
+        </div>
+        </f:subview>
+    </rich:tab>
+
+   
+</rich:tabPanel>
+</ui:define>
+
+</ui:composition>

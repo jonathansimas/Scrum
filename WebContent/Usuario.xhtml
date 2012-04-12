@@ -1,0 +1,223 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:s="http://jboss.com/products/seam/taglib"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    template="layout/template.xhtml">
+
+<ui:define name="body">
+
+    <rich:panel>
+        <f:facet name="header">Usuario Details</f:facet>
+
+
+        <s:decorate id="nome" template="layout/display.xhtml">
+            <ui:define name="label">Nome</ui:define>
+            <h:outputText value="#{usuarioHome.instance.nome}"/>
+        </s:decorate>
+
+        <s:decorate id="login" template="layout/display.xhtml">
+            <ui:define name="label">Login</ui:define>
+            <h:outputText value="#{usuarioHome.instance.login}"/>
+        </s:decorate>
+
+        <s:decorate id="senha" template="layout/display.xhtml">
+            <ui:define name="label">Senha</ui:define>
+            <h:outputText value="#{usuarioHome.instance.senha}"/>
+        </s:decorate>
+
+        <s:decorate id="email" template="layout/display.xhtml">
+            <ui:define name="label">Email</ui:define>
+            <h:outputText value="#{usuarioHome.instance.email}"/>
+        </s:decorate>
+
+        <div style="clear:both"/>
+
+    </rich:panel>
+
+    <div class="actionButtons">
+
+        <s:button view="/UsuarioEdit.xhtml"
+                    id="edit"
+                 value="Edit"/>
+
+        <s:button view="/#{empty usuarioFrom ? 'UsuarioList' : usuarioFrom}.xhtml"
+                    id="done"
+                 value="Done"/>
+
+    </div>
+
+    <rich:tabPanel switchType="ajax">
+
+    <rich:tab>
+        <f:facet name="label">
+            <h:panelGroup><h:graphicImage value="/img/manytoone.gif" style="vertical-align: middle; padding-right: 4px;"/>Equipe</h:panelGroup>
+        </f:facet>
+    <div class="association" id="equipeParent">
+
+        <h:outputText value="There is no equipe associated with this usuario."
+                   rendered="#{usuarioHome.instance.equipe == null}"/>
+
+        <rich:dataTable var="_equipe"
+                   value="#{usuarioHome.instance.equipe}"
+                rendered="#{usuarioHome.instance.equipe != null}"
+              rowClasses="rvgRowOne,rvgRowTwo"
+                      id="equipeTable">
+            <h:column>
+                <f:facet name="header">Id equipe</f:facet>
+                <h:outputText value="#{_equipe.idEquipe}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Nome</f:facet>
+                <h:outputText value="#{_equipe.nome}"/>
+            </h:column>
+            <h:column styleClass="action">
+                <f:facet name="header">Action</f:facet>
+                <s:link id="viewequipe"
+                     value="View"
+                      view="/Equipe.xhtml">
+                    <f:param name="equipeIdEquipe"
+                           value="#{_equipe.idEquipe}"/>
+                </s:link>
+            </h:column>
+        </rich:dataTable>
+
+    </div>
+    </rich:tab>
+
+    <rich:tab>
+        <f:facet name="label">
+            <h:panelGroup><h:graphicImage value="/img/onetomany.gif" style="vertical-align: middle; padding-right: 4px;"/>Tarefas</h:panelGroup>
+        </f:facet>
+    <h:form styleClass="association" id="tarefasChildren">
+
+        <h:outputText value="There are no tarefas associated with this usuario."
+                   rendered="#{empty usuarioHome.tarefas}"/>
+
+        <rich:dataTable value="#{usuarioHome.tarefas}"
+                       var="_tarefa"
+                  rendered="#{not empty usuarioHome.tarefas}"
+                rowClasses="rvgRowOne,rvgRowTwo"
+                        id="tarefasTable">
+            <rich:column sortBy="#{_tarefa.idTarefa}">
+                <f:facet name="header">Id tarefa</f:facet>
+                <h:outputText value="#{_tarefa.idTarefa}"/>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.texto}">
+                <f:facet name="header">Texto</f:facet>
+                <h:outputText value="#{_tarefa.texto}"/>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.ponto}">
+                <f:facet name="header">Ponto</f:facet>
+                <h:outputText value="#{_tarefa.ponto}">
+                    <f:convertNumber/>
+                </h:outputText>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.inicio}">
+                <f:facet name="header">Inicio</f:facet>
+                <h:outputText value="#{_tarefa.inicio}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.fim}">
+                <f:facet name="header">Fim</f:facet>
+                <h:outputText value="#{_tarefa.fim}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </rich:column>
+            <h:column>
+                <f:facet name="header">Action</f:facet>
+                <s:link id="selecttarefa"
+                     value="Select"
+                      view="/Tarefa.xhtml">
+                    <f:param name="tarefaIdTarefa"
+                            value="#{_tarefa.idTarefa}"/>
+                    <f:param name="tarefaFrom" value="Usuario"/>
+                </s:link>
+            </h:column>
+        </rich:dataTable>
+
+    </h:form>
+
+    <div class="actionButtons">
+        <s:button
+               value="Add tarefa"
+                view="/TarefaEdit.xhtml">
+            <f:param name="usuarioIdUsuario"
+                    value="#{usuarioHome.instance.idUsuario}"/>
+            <f:param name="tarefaFrom" value="Usuario"/>
+        </s:button>
+    </div>
+    </rich:tab>
+
+    <rich:tab>
+        <f:facet name="label">
+            <h:panelGroup><h:graphicImage value="/img/onetomany.gif" style="vertical-align: middle; padding-right: 4px;"/>Tarefas_1</h:panelGroup>
+        </f:facet>
+    <h:form styleClass="association" id="tarefas_1Children">
+
+        <h:outputText value="There are no tarefas_1 associated with this usuario."
+                   rendered="#{empty usuarioHome.tarefas_1}"/>
+
+        <rich:dataTable value="#{usuarioHome.tarefas_1}"
+                       var="_tarefa"
+                  rendered="#{not empty usuarioHome.tarefas_1}"
+                rowClasses="rvgRowOne,rvgRowTwo"
+                        id="tarefas_1Table">
+            <rich:column sortBy="#{_tarefa.idTarefa}">
+                <f:facet name="header">Id tarefa</f:facet>
+                <h:outputText value="#{_tarefa.idTarefa}"/>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.texto}">
+                <f:facet name="header">Texto</f:facet>
+                <h:outputText value="#{_tarefa.texto}"/>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.ponto}">
+                <f:facet name="header">Ponto</f:facet>
+                <h:outputText value="#{_tarefa.ponto}">
+                    <f:convertNumber/>
+                </h:outputText>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.inicio}">
+                <f:facet name="header">Inicio</f:facet>
+                <h:outputText value="#{_tarefa.inicio}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </rich:column>
+            <rich:column sortBy="#{_tarefa.fim}">
+                <f:facet name="header">Fim</f:facet>
+                <h:outputText value="#{_tarefa.fim}">
+                    <s:convertDateTime type="both" dateStyle="short"/>
+                </h:outputText>
+            </rich:column>
+            <h:column>
+                <f:facet name="header">Action</f:facet>
+                <s:link id="selecttarefa"
+                     value="Select"
+                      view="/Tarefa.xhtml">
+                    <f:param name="tarefaIdTarefa"
+                            value="#{_tarefa.idTarefa}"/>
+                    <f:param name="tarefaFrom" value="Usuario"/>
+                </s:link>
+            </h:column>
+        </rich:dataTable>
+
+    </h:form>
+
+    <div class="actionButtons">
+        <s:button
+               value="Add tarefa"
+                view="/TarefaEdit.xhtml">
+            <f:param name="usuarioIdUsuario"
+                    value="#{usuarioHome.instance.idUsuario}"/>
+            <f:param name="tarefaFrom" value="Usuario"/>
+        </s:button>
+    </div>
+    </rich:tab>
+</rich:tabPanel>
+</ui:define>
+
+</ui:composition>

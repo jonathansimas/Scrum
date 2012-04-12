@@ -1,0 +1,235 @@
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:s="http://jboss.com/products/seam/taglib"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a="http://richfaces.org/a4j"
+    xmlns:rich="http://richfaces.org/rich"
+    template="layout/template.xhtml">
+
+<ui:define name="body">
+
+    <h:form id="projeto" styleClass="edit">
+
+        <rich:panel>
+            <f:facet name="header">#{projetoHome.managed ? 'Edit' : 'Add'} Projeto</f:facet>
+
+
+
+
+            <s:decorate id="nomeField" template="layout/edit.xhtml">
+                <ui:define name="label">Nome</ui:define>
+                <h:inputTextarea id="nome"
+                               cols="80"
+                               rows="3"
+                           required="true"
+                              value="#{projetoHome.instance.nome}"/>
+            </s:decorate>
+
+
+            <s:decorate id="descricaoField" template="layout/edit.xhtml">
+                <ui:define name="label">Descricao</ui:define>
+                <h:inputTextarea id="descricao"
+                               cols="80"
+                               rows="10"
+                              value="#{projetoHome.instance.descricao}"/>
+            </s:decorate>
+
+
+            <s:decorate id="dataCriacaoField" template="layout/edit.xhtml">
+                <ui:define name="label">Data criacao</ui:define>
+                <rich:calendar id="dataCriacao"
+                          value="#{projetoHome.instance.dataCriacao}" datePattern="MM/dd/yyyy hh:mm a"/>
+            </s:decorate>
+
+
+
+            <div style="clear:both">
+                <span class="required">*</span>
+                required fields
+            </div>
+
+        </rich:panel>
+
+        <div class="actionButtons">
+
+            <h:commandButton id="save"
+                          value="Save"
+                         action="#{projetoHome.persist}"
+                       disabled="#{!projetoHome.wired}"
+                       rendered="#{!projetoHome.managed}"/>
+
+            <h:commandButton id="update"
+                          value="Save"
+                         action="#{projetoHome.update}"
+                       rendered="#{projetoHome.managed}"/>
+
+            <h:commandButton id="delete"
+                          value="Delete"
+                         action="#{projetoHome.remove}"
+                      immediate="true"
+                       rendered="#{projetoHome.managed}"/>
+
+            <s:button id="cancelEdit"
+                   value="Cancel"
+             propagation="end"
+                    view="/Projeto.xhtml"
+                rendered="#{projetoHome.managed}"/>
+
+            <s:button id="cancelAdd"
+                   value="Cancel"
+             propagation="end"
+                    view="/#{empty projetoFrom ? 'ProjetoList' : projetoFrom}.xhtml"
+                rendered="#{!projetoHome.managed}"/>
+
+        </div>
+    </h:form>
+
+<rich:tabPanel switchType="ajax">
+
+    <rich:tab label="Equipe *" labelClass="required">
+    <div class="association" id="equipeParent">
+
+        <h:outputText value="There is no equipe associated with this projeto."
+                   rendered="#{projetoHome.instance.equipe == null}"/>
+
+        <rich:dataTable var="_equipe"
+                   value="#{projetoHome.instance.equipe}"
+                rendered="#{projetoHome.instance.equipe != null}"
+              rowClasses="rvgRowOne,rvgRowTwo"
+                      id="equipeTable">
+            <h:column>
+                <f:facet name="header">Id equipe</f:facet>
+                <h:outputText value="#{_equipe.idEquipe}"/>
+            </h:column>
+            <h:column>
+                <f:facet name="header">Nome</f:facet>
+                <h:outputText value="#{_equipe.nome}"/>
+            </h:column>
+        </rich:dataTable>
+
+        <div class="actionButtons">
+            <s:button id="#{projetoHome.instance.equipe != null ? 'changeParent' : 'selectParent'}" value="#{projetoHome.instance.equipe != null ? 'Change' : 'Select'} equipe"
+                       view="/EquipeList.xhtml">
+                <f:param name="from" value="ProjetoEdit"/>
+            </s:button>
+        </div>
+
+    </div>
+    </rich:tab>
+
+    <rich:tab label="Tarefas">
+        <h:form styleClass="association" id="tarefasChildren">
+
+            <h:outputText value="There are no tarefas associated with this projeto."
+                       rendered="#{empty projetoHome.tarefas}"/>
+
+            <rich:dataTable value="#{projetoHome.tarefas}"
+                           var="_tarefa"
+                      rendered="#{not empty projetoHome.tarefas}"
+                    rowClasses="rvgRowOne,rvgRowTwo"
+                            id="tarefasTable">
+                <rich:column sortBy="#{_tarefa.idTarefa}">
+                    <f:facet name="header">Id tarefa</f:facet>
+                    <h:outputText value="#{_tarefa.idTarefa}"/>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.texto}">
+                    <f:facet name="header">Texto</f:facet>
+                    <h:outputText value="#{_tarefa.texto}"/>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.ponto}">
+                    <f:facet name="header">Ponto</f:facet>
+                    <h:outputText value="#{_tarefa.ponto}">
+                        <f:convertNumber/>
+                    </h:outputText>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.inicio}">
+                    <f:facet name="header">Inicio</f:facet>
+                    <h:outputText value="#{_tarefa.inicio}">
+                        <s:convertDateTime type="both" dateStyle="short"/>
+                    </h:outputText>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.fim}">
+                    <f:facet name="header">Fim</f:facet>
+                    <h:outputText value="#{_tarefa.fim}">
+                        <s:convertDateTime type="both" dateStyle="short"/>
+                    </h:outputText>
+                </rich:column>
+            </rich:dataTable>
+
+        </h:form>
+
+        <f:subview rendered="#{projetoHome.managed}" id="tarefas">
+        <div class="actionButtons">
+            <s:button id="addtarefa"
+                   value="Add tarefa"
+                    view="/TarefaEdit.xhtml"
+             propagation="none">
+                 <f:param name="projetoIdProjeto"
+                         value="#{projetoHome.instance.idProjeto}"/>
+                 <f:param name="tarefaFrom" value="Projeto"/>
+            </s:button>
+        </div>
+        </f:subview>
+    </rich:tab>
+
+    <rich:tab label="Tarefas_1">
+        <h:form styleClass="association" id="tarefas_1Children">
+
+            <h:outputText value="There are no tarefas_1 associated with this projeto."
+                       rendered="#{empty projetoHome.tarefas_1}"/>
+
+            <rich:dataTable value="#{projetoHome.tarefas_1}"
+                           var="_tarefa"
+                      rendered="#{not empty projetoHome.tarefas_1}"
+                    rowClasses="rvgRowOne,rvgRowTwo"
+                            id="tarefas_1Table">
+                <rich:column sortBy="#{_tarefa.idTarefa}">
+                    <f:facet name="header">Id tarefa</f:facet>
+                    <h:outputText value="#{_tarefa.idTarefa}"/>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.texto}">
+                    <f:facet name="header">Texto</f:facet>
+                    <h:outputText value="#{_tarefa.texto}"/>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.ponto}">
+                    <f:facet name="header">Ponto</f:facet>
+                    <h:outputText value="#{_tarefa.ponto}">
+                        <f:convertNumber/>
+                    </h:outputText>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.inicio}">
+                    <f:facet name="header">Inicio</f:facet>
+                    <h:outputText value="#{_tarefa.inicio}">
+                        <s:convertDateTime type="both" dateStyle="short"/>
+                    </h:outputText>
+                </rich:column>
+                <rich:column sortBy="#{_tarefa.fim}">
+                    <f:facet name="header">Fim</f:facet>
+                    <h:outputText value="#{_tarefa.fim}">
+                        <s:convertDateTime type="both" dateStyle="short"/>
+                    </h:outputText>
+                </rich:column>
+            </rich:dataTable>
+
+        </h:form>
+
+        <f:subview rendered="#{projetoHome.managed}" id="tarefas_1">
+        <div class="actionButtons">
+            <s:button id="addtarefa"
+                   value="Add tarefa"
+                    view="/TarefaEdit.xhtml"
+             propagation="none">
+                 <f:param name="projetoIdProjeto"
+                         value="#{projetoHome.instance.idProjeto}"/>
+                 <f:param name="tarefaFrom" value="Projeto"/>
+            </s:button>
+        </div>
+        </f:subview>
+    </rich:tab>
+</rich:tabPanel>
+</ui:define>
+
+</ui:composition>
